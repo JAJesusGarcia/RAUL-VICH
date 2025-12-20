@@ -1,35 +1,80 @@
+import { RegionCTA } from "@/components/regions/RegionCTA"
+import { RegionCulture } from "@/components/regions/RegionCulture"
+import { RegionGallery } from "@/components/regions/RegionGallery"
+import { RegionHero } from "@/components/regions/RegionHero"
+import { RegionStory } from "@/components/regions/RegionStory"
+import { RegionVideoHero } from "@/components/regions/RegionVideoHero"
 import { CityInfo } from "@/components/sections/CityInfo"
 
 export default function NorthPage() {
   return (
-    <main className="min-h-screen px-6 py-24">
-      <h1 className="text-5xl font-bold">North Argentina</h1>
+    <>
+      {/* HERO FULL WIDTH */}
+      {/* <RegionHero
+        title="North Argentina"
+        subtitle="Colors, traditions and ancestral landscapes."
+        image="/images/north.webp"
+      /> */}
+      <RegionVideoHero
+        title="North Argentina"
+        subtitle="Colors, traditions and ancestral landscapes."
+        videoSrc="/videos/north.mp4"
+        poster="/images/north/hero.jpg"
+      />
 
-      <p className="mt-6 max-w-2xl text-lg">
-        Discover the cultural heart of Argentina through mountains,
-        colorful villages and ancestral traditions.
-      </p>
+      <main className="min-h-screen">
+        {/* STORY */}
+        <RegionStory
+          title="A journey through history"
+          text="The north of Argentina is a land of contrasts..."
+        />
 
-      <section className="mt-16 grid gap-6 md:grid-cols-3">
-        <CityInfo
-          city="Salta"
-          timezone="America/Argentina/Salta"
-          lat={-24.7821}
-          lon={-65.4232}
+        {/* CULTURE */}
+        <RegionCulture />
+
+        {/* KEY CITIES */}
+        <section className="py-24 px-6">
+          <h2 className="text-3xl font-bold mb-12">
+            Key cities & current conditions
+          </h2>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <CityInfo
+              city="Salta"
+              timezone="America/Argentina/Buenos_Aires"
+              lat={-24.7821}
+              lon={-65.4232}
+            />
+            <CityInfo
+              city="Jujuy"
+              timezone="America/Argentina/Buenos_Aires"
+              lat={-24.1858}
+              lon={-65.2995}
+            />
+            <CityInfo
+              city="Tucumán"
+              timezone="America/Argentina/Buenos_Aires"
+              lat={-26.8083}
+              lon={-65.2176}
+            />
+          </div>
+        </section>
+
+        {/* GALLERY */}
+        <RegionGallery
+          images={[
+            "/images/north/galleryNorth/north.webp",
+            "/images/north/galleryNorth/north-3.webp",
+            "/images/north/galleryNorth/north-2.webp",
+            "/images/north/galleryNorth/north.webp",
+            "/images/north/galleryNorth/north-3.webp",
+            "/images/north/galleryNorth/north-2.webp",
+          ]}
         />
-        <CityInfo
-          city="Jujuy"
-          timezone="America/Argentina/Jujuy"
-          lat={-24.1858}
-          lon={-65.2995}
-        />
-        <CityInfo
-          city="Tucumán"
-          timezone="America/Argentina/Tucuman"
-          lat={-26.8083}
-          lon={-65.2176}
-        />
-      </section>
-    </main>
+
+        {/* CTA */}
+        <RegionCTA label="View North Packages" />
+      </main>
+    </>
   )
 }
