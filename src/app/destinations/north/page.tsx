@@ -1,10 +1,10 @@
-import { RegionCTA } from "@/components/regions/RegionCTA"
-import { RegionCulture } from "@/components/regions/RegionCulture"
-import { RegionGallery } from "@/components/regions/RegionGallery"
-import { RegionHero } from "@/components/regions/RegionHero"
-import { RegionStory } from "@/components/regions/RegionStory"
-import { RegionVideoHero } from "@/components/regions/RegionVideoHero"
-import { CityInfo } from "@/components/sections/CityInfo"
+import { RegionCTA } from "@/src/components/regions/RegionCTA"
+import { RegionCulture } from "@/src/components/regions/RegionCulture"
+import { RegionGallery } from "@/src/components/regions/RegionGallery"
+import { RegionHero } from "@/src/components/regions/RegionHero"
+import { RegionStory } from "@/src/components/regions/RegionStory"
+import { RegionVideoHero } from "@/src/components/regions/RegionVideoHero"
+import { CityInfo } from "@/src/components/sections/CityInfo"
 
 export default function NorthPage() {
   return (

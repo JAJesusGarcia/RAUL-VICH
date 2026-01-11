@@ -1,4 +1,4 @@
-import { Reveal } from "@/components/animations/Reveal"
+import { Reveal } from "@/src/components/animations/Reveal"
 
 type Props = {
   title: string

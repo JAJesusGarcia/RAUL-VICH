@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Volume2, VolumeX } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/src/components/ui/button"
 
 type Props = {
   src: string

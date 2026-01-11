@@ -1,9 +1,9 @@
-import { RegionVideoHero } from "@/components/regions/RegionVideoHero"
-import { RegionStory } from "@/components/regions/RegionStory"
-import { RegionCulture } from "@/components/regions/RegionCulture"
-import { RegionGallery } from "@/components/regions/RegionGallery"
-import { RegionCTA } from "@/components/regions/RegionCTA"
-import { CityInfo } from "@/components/sections/CityInfo"
+import { RegionVideoHero } from "@/src/components/regions/RegionVideoHero"
+import { RegionStory } from "@/src/components/regions/RegionStory"
+import { RegionCulture } from "@/src/components/regions/RegionCulture"
+import { RegionGallery } from "@/src/components/regions/RegionGallery"
+import { RegionCTA } from "@/src/components/regions/RegionCTA"
+import { CityInfo } from "@/src/components/sections/CityInfo"
 
 export default function SouthPage() {
   return (

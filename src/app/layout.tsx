@@ -1,6 +1,6 @@
-import { Navbar } from "@/components/navigation/Navbar"
+import { Navbar } from "@/src/components/navigation/Navbar"
 import "./globals.css"
-import { AmbientMusic } from "@/components/audio/AmbientMusic"
+import { AmbientMusic } from "@/src/components/audio/AmbientMusic"
 
 export const metadata = {
   title: "Argentina Road Experience",
