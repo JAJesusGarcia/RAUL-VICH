@@ -3,6 +3,7 @@ import "./globals.css";
 import { AmbientMusic } from "@/src/components/audio/AmbientMusic";
 import { getDriveUrl } from "@/src/lib/drive";
 import { MEDIA } from "@/src/constants/media";
+import { getMediaUrl } from "../lib/media";
 
 export const metadata = {
   title: "Argentina Road Experience",
@@ -18,7 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-background text-foreground">
         <Navbar />
-        <AmbientMusic src="https://res.cloudinary.com/dpadnzbyw/video/upload/v1768092118/audio_rikhxp.mp3" />
+        {/* <AmbientMusic src="https://res.cloudinary.com/dpadnzbyw/video/upload/v1768092118/audio_rikhxp.mp3" /> */}
+        <AmbientMusic
+  src={getMediaUrl("video", MEDIA.audio.ambientNorth)}
+/>
 
         {children}
       </body>

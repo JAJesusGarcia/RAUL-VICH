@@ -1,15 +1,16 @@
 export const MEDIA = {
   images: {
-    hero: "FILE_ID_IMAGE_1",
-    profile: "FILE_ID_IMAGE_2",
+    hero: "images/hero.webp",
+    bus: "images/bus.jpg",
   },
   video: {
-    intro: "FILE_ID_VIDEO_1",
+    intro: "video/intro.mp4",
   },
   audio: {
-    northAmbient: "1_d_2RlAe_HKtaTq11PSlqNmYvAtsaLok",
+    ambientNorth: "audio/north.mp3",
   },
 };
+
 
 
 //USO DE CONSTANTES EN OTRO ARCHIVO
