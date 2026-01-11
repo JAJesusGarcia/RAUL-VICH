@@ -1,27 +1,31 @@
-import { Navbar } from "@/src/components/navigation/Navbar"
-import "./globals.css"
-import { AmbientMusic } from "@/src/components/audio/AmbientMusic"
+import { Navbar } from "@/src/components/navigation/Navbar";
+import "./globals.css";
+import { AmbientMusic } from "@/src/components/audio/AmbientMusic";
+import { getDriveUrl } from "@/src/lib/drive";
+import { MEDIA } from "@/src/constants/media";
 
 export const metadata = {
   title: "Argentina Road Experience",
-  description: "Discover Argentina by road. A premium bus travel experience."
-}
+  description: "Discover Argentina by road. A premium bus travel experience.",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <body className="antialiased bg-background text-foreground">
         <Navbar />
-        <AmbientMusic src="/audio/north.mp3" />
+        <AmbientMusic src="https://res.cloudinary.com/dpadnzbyw/video/upload/v1768092118/audio_rikhxp.mp3" />
+
         {children}
       </body>
     </html>
-  )
+  );
 }
+
 
   // import type { Metadata } from "next";
   // import { Geist, Geist_Mono } from "next/font/google";
