@@ -19,11 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-background text-foreground">
         <Navbar />
-        {/* <AmbientMusic src="https://res.cloudinary.com/dpadnzbyw/video/upload/v1768092118/audio_rikhxp.mp3" /> */}
         <AmbientMusic
-  src={getMediaUrl("video", MEDIA.audio.ambientNorth)}
-/>
-
+            src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
+          />
         {children}
       </body>
     </html>

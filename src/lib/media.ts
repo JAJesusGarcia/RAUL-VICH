@@ -1,4 +1,4 @@
-type MediaType = "image" | "video" | "audio";
+type MediaType = "image" | "video";
 
 export const getMediaUrl = (
   type: MediaType,

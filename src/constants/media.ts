@@ -1,13 +1,20 @@
 export const MEDIA = {
-  images: {
-    hero: "images/hero.webp",
-    bus: "images/bus.jpg",
-  },
-  video: {
-    intro: "video/intro.mp4",
-  },
-  audio: {
-    ambientNorth: "audio/north.mp3",
+  home: {
+    video: {
+      intro: "home/video/intro.mp4",
+    },
+    images: {
+      hero: "home/images/hero.webp",
+      south: {
+        patagonia: "home/images/south/patagonia.jpg",
+      },
+      north: {
+        salta: "home/images/north/salta.jpg",
+      },
+    },
+    audio: {
+      ambiental: "home/audio/ambiental",
+    },
   },
 };
 
