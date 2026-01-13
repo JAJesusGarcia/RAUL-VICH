@@ -5,6 +5,8 @@ import { RegionHero } from "@/src/components/regions/RegionHero"
 import { RegionStory } from "@/src/components/regions/RegionStory"
 import { RegionVideoHero } from "@/src/components/regions/RegionVideoHero"
 import { CityInfo } from "@/src/components/sections/CityInfo"
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
 
 export default function NorthPage() {
   return (
@@ -18,7 +20,7 @@ export default function NorthPage() {
       <RegionVideoHero
         title="North Argentina"
         subtitle="Colors, traditions and ancestral landscapes."
-        videoSrc="/videos/north.mp4"
+        videoSrc={getMediaUrl("video", MEDIA.home.video.heroNorth)}
         poster="/images/north/hero.jpg"
       />
 

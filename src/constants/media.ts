@@ -2,6 +2,7 @@ export const MEDIA = {
   home: {
     video: {
       hero: "hero_ywnmkw.mp4",
+      heroNorth: "north_hoa7bo.mp4"
     },
     images: {
       hero: "home/images/hero.webp",
