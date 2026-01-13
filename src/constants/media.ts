@@ -5,13 +5,14 @@ export const MEDIA = {
       heroNorth: "north_hoa7bo.mp4"
     },
     images: {
-      hero: "home/images/hero.webp",
-      south: {
-        patagonia: "home/images/south/patagonia.jpg",
-      },
-      north: {
-        salta: "home/images/north/salta.jpg",
-      },
+      north: [
+        "north-3_oxlsbz.webp",
+        "north_jcrjxa.webp",
+        "heroNorth_td07v9.jpg",
+        "north-2_cpbde8.jpg",
+        "north-3_oxlsbz.webp",
+        "north_jcrjxa.webp",
+      ],
     },
     audio: {
       ambiental: "audio_rikhxp.mp3",

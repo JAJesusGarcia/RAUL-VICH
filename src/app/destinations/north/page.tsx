@@ -58,6 +58,21 @@ export default function NorthPage() {
 
         {/* GALLERY */}
         <RegionGallery
+          images={MEDIA.home.images.north.map((img: string) =>
+            getMediaUrl("image", img)
+          )}
+        />
+        {/* <RegionGallery
+        images={[
+          getMediaUrl("image", MEDIA.home.images.north.north_1),
+          getMediaUrl("image", MEDIA.home.images.north.north_2),
+          getMediaUrl("image", MEDIA.home.images.north.north_3),
+          getMediaUrl("image", MEDIA.home.images.north.north_4),
+          getMediaUrl("image", MEDIA.home.images.north.north_1),
+          getMediaUrl("image", MEDIA.home.images.north.north_2),
+        ]}
+      /> */}
+        {/* <RegionGallery
           images={[
             "/images/north/galleryNorth/north.webp",
             "/images/north/galleryNorth/north-3.webp",
@@ -66,7 +81,7 @@ export default function NorthPage() {
             "/images/north/galleryNorth/north-3.webp",
             "/images/north/galleryNorth/north-2.webp",
           ]}
-        />
+        /> */}
 
         {/* CTA */}
         <RegionCTA label="View North Packages" />
