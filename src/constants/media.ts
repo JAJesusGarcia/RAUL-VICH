@@ -13,7 +13,7 @@ export const MEDIA = {
       },
     },
     audio: {
-      ambiental: "home/audio/ambiental",
+      ambiental: "audio_rikhxp.mp3",
     },
   },
 };

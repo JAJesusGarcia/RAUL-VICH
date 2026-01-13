@@ -20,8 +20,11 @@ export default function RootLayout({
       <body className="antialiased bg-background text-foreground">
         <Navbar />
         <AmbientMusic
+  src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
+/>
+        {/* <AmbientMusic
             src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
-          />
+          /> */}
         {children}
       </body>
     </html>
