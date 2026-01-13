@@ -11,12 +11,6 @@ import { getMediaUrl } from "@/src/lib/media"
 export default function NorthPage() {
   return (
     <>
-      {/* HERO FULL WIDTH */}
-      {/* <RegionHero
-        title="North Argentina"
-        subtitle="Colors, traditions and ancestral landscapes."
-        image="/images/north.webp"
-      /> */}
       <RegionVideoHero
         title="North Argentina"
         subtitle="Colors, traditions and ancestral landscapes."
