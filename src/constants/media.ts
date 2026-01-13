@@ -1,7 +1,7 @@
 export const MEDIA = {
   home: {
     video: {
-      intro: "home/video/intro.mp4",
+      hero: "hero_ywnmkw.mp4",
     },
     images: {
       hero: "home/images/hero.webp",

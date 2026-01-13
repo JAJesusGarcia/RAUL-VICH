@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/src/components/ui/button"
+import { getMediaUrl } from "@/src/lib/media"
+import { MEDIA } from "@/src/constants/media"
 
 export function VideoHero() {
   return (
@@ -9,12 +11,21 @@ export function VideoHero() {
       {/* Video background */}
       <video
         className="absolute inset-0 h-full w-full object-cover"
+        src={getMediaUrl("video", MEDIA.home.video.hero)}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      />
+      {/* <video
+        className="absolute inset-0 h-full w-full object-cover"
         src="/videos/hero.mp4"
         autoPlay
         muted
         loop
         playsInline
-      />
+      /> */}
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50" />
