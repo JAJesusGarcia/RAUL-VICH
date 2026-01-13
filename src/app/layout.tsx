@@ -22,9 +22,6 @@ export default function RootLayout({
         <AmbientMusic
   src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
 />
-        {/* <AmbientMusic
-            src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
-          /> */}
         {children}
       </body>
     </html>
