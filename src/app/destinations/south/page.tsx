@@ -4,6 +4,8 @@ import { RegionCulture } from "@/src/components/regions/RegionCulture"
 import { RegionGallery } from "@/src/components/regions/RegionGallery"
 import { RegionCTA } from "@/src/components/regions/RegionCTA"
 import { CityInfo } from "@/src/components/sections/CityInfo"
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
 
 export default function SouthPage() {
   return (
@@ -11,7 +13,7 @@ export default function SouthPage() {
       <RegionVideoHero
         title="South Argentina"
         subtitle="Glaciers, lakes and the end of the world."
-        videoSrc="/videos/south.mp4"
+        videoSrc={getMediaUrl("video", MEDIA.home.video.heroSouth)}
         poster="/images/south/hero.jpg"
       />
 
@@ -51,6 +53,12 @@ export default function SouthPage() {
         </section>
 
         <RegionGallery
+          images={MEDIA.home.images.south.map((img: string) =>
+           getMediaUrl("image", img)
+          )}
+        />
+
+        {/* <RegionGallery
           images={[
             "/images/south/gallerySouth/1.jpeg",
             "/images/south/gallerySouth/2.jpeg",
@@ -59,7 +67,7 @@ export default function SouthPage() {
             "/images/south/gallerySouth/1.jpeg",
             "/images/south/gallerySouth/2.jpeg",
           ]}
-        />
+        /> */}
 
         <RegionCTA label="View Patagonia Packages" />
       </main>
