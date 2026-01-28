@@ -4,6 +4,8 @@ import { AmbientMusic } from "@/src/components/audio/AmbientMusic";
 import { getDriveUrl } from "@/src/lib/drive";
 import { MEDIA } from "@/src/constants/media";
 import { getMediaUrl } from "../lib/media";
+import { PartnersCarousel } from "../components/partners/PartnersCarousel";
+import { Footer } from "../components/footer/Footer";
 
 export const metadata = {
   title: "Argentina Road Experience",
@@ -24,6 +26,8 @@ export default function RootLayout({
 />
         {children}
       </body>
+        <PartnersCarousel />
+        <Footer />
     </html>
   );
 }
