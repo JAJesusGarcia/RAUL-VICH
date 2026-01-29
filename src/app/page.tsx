@@ -10,7 +10,7 @@ export default function Home() {
         <VideoHero />
         <BusExperience />
         <Destinations />
-        <BusJourney />
+        {/* <BusJourney />  */}
       </main>
     </>
   )

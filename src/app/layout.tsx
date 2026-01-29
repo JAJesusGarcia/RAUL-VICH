@@ -1,11 +1,13 @@
 import { Navbar } from "@/src/components/navigation/Navbar";
 import "./globals.css";
 import { AmbientMusic } from "@/src/components/audio/AmbientMusic";
-import { getDriveUrl } from "@/src/lib/drive";
-import { MEDIA } from "@/src/constants/media";
-import { getMediaUrl } from "../lib/media";
+// Importamos el nuevo componente
+
 import { PartnersCarousel } from "../components/partners/PartnersCarousel";
 import { Footer } from "../components/footer/Footer";
+import { getMediaUrl } from "../lib/media";
+import { MEDIA } from "@/src/constants/media";
+import { BackgroundJourney } from "../components/animations/BackgroundJourney";
 
 export const metadata = {
   title: "Argentina Road Experience",
@@ -19,18 +21,70 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased bg-background text-foreground">
-        <Navbar />
-        <AmbientMusic
-  src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
-/>
-        {children}
+      <body className="antialiased bg-background text-foreground relative">
+        {/* 1. EL FONDO DEL VIAJE (Capa inferior fija) */}
+        <BackgroundJourney />
+
+        {/* 2. LA MÚSICA (Invisible) */}
+        <AmbientMusic src={getMediaUrl("video", MEDIA.home.audio.ambiental)} />
+
+        {/* 3. CONTENIDO PRINCIPAL (Capa superior scrolleable) */}
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <Navbar />
+          
+          {/* Main envuelve children para asegurar espaciado si es necesario */}
+          <main className="flex-grow">
+            {children}
+          </main>
+          
+          <PartnersCarousel />
+          <Footer />
+        </div>
       </body>
-        <PartnersCarousel />
-        <Footer />
     </html>
   );
 }
+
+
+///////////////////////////////////////////////////////////
+
+
+// import { Navbar } from "@/src/components/navigation/Navbar";
+// import "./globals.css";
+// import { AmbientMusic } from "@/src/components/audio/AmbientMusic";
+// import { getDriveUrl } from "@/src/lib/drive";
+// import { MEDIA } from "@/src/constants/media";
+// import { getMediaUrl } from "../lib/media";
+// import { PartnersCarousel } from "../components/partners/PartnersCarousel";
+// import { Footer } from "../components/footer/Footer";
+
+// export const metadata = {
+//   title: "Argentina Road Experience",
+//   description: "Discover Argentina by road. A premium bus travel experience.",
+// };
+
+// export default function RootLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <html lang="en">
+//       <body className="antialiased bg-background text-foreground">
+//         <Navbar />
+//         <AmbientMusic
+//   src={getMediaUrl("video", MEDIA.home.audio.ambiental)}
+// />
+//         {children}
+//       </body>
+//         <PartnersCarousel />
+//         <Footer />
+//     </html>
+//   );
+// }
+
+
+///////////////////////////////////////////////////////////////////
 
 
   // import type { Metadata } from "next";
