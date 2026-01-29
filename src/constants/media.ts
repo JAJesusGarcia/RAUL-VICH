@@ -4,7 +4,7 @@ export const MEDIA = {
       hero: "hero_ywnmkw.mp4",
       heroNorth: "north_hoa7bo.mp4",
       heroSouth: "_Desprendimiento_HISTÓRICO_Glaciar_Perito_Moreno_️_Base_collapse_glacier_amazing_Lean_Gon_-_La_Vida_Misma_Lean_Gon_1080p_h264_ilezsn.mp4",
-      abouth: "Cinematic_hero_video_202601290042_1p065_r07kus.mp4"
+      about: "Cinematic_hero_video_202601290042_1p065_r07kus.mp4"
     },
     images: {
       north: [
@@ -24,7 +24,8 @@ export const MEDIA = {
         "south_cqgbx3.webp"
       ],
       about: [
-        "about-1_mxqvex.jpg",
+        "Gemini_Generated_Image_ta52s5ta52s5ta52_veafnd.png",
+        "v1769659468/Gemini_Generated_Image_ex5mrfex5mrfex5m_brzbvx.png"
       ]
     },
     audio: {

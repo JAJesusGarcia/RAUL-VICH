@@ -1,5 +1,7 @@
 "use client"
 
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
@@ -12,7 +14,7 @@ export function AboutFounder() {
         viewport={{ once: true }}
       >
         <Image
-          src="/images/dario.jpg"
+          src={getMediaUrl("image", MEDIA.home.images.about[1])}
           alt="Darío El Chino"
           width={600}
           height={600}

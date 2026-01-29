@@ -1,5 +1,7 @@
 "use client"
 
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
@@ -7,7 +9,7 @@ export function AboutOrigin() {
   return (
     <section className="grid md:grid-cols-2">
       <Image
-        src="/images/institute.jpg"
+        src={getMediaUrl("image", MEDIA.home.images.about[0])}
         alt="Raúl Vich Institute"
         width={1200}
         height={800}

@@ -1,5 +1,7 @@
 "use client"
 
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
@@ -8,7 +10,7 @@ export function AboutPhilosophy() {
     <section className="relative h-[60vh] w-full overflow-hidden">
       {/* IMAGE */}
       <Image
-        src="/images/route.jpg"
+        src={getMediaUrl("image", MEDIA.home.images.about[0])}
         alt="Argentine roads"
         fill
         className="object-cover"

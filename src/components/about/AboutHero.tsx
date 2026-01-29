@@ -16,7 +16,7 @@ export function AboutHero() {
         className="absolute inset-0 h-full w-full object-cover"
       >
         <source
-          src={getMediaUrl("video", MEDIA.home.video.abouth)}
+          src={getMediaUrl("video", MEDIA.home.video.about)}
           type="video/mp4"
         />
       </video>
