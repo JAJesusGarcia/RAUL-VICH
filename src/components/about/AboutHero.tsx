@@ -1,5 +1,7 @@
 "use client"
 
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
 import { motion } from "framer-motion"
 
 export function AboutHero() {
@@ -13,14 +15,17 @@ export function AboutHero() {
         playsInline
         className="absolute inset-0 h-full w-full object-cover"
       >
-        <source src="/videos/road-argentina.mp4" type="video/mp4" />
+        <source
+          src={getMediaUrl("video", MEDIA.home.video.abouth)}
+          type="video/mp4"
+        />
       </video>
 
       {/* OVERLAY */}
       <div className="absolute inset-0 bg-black/50" />
 
       {/* CONTENT */}
-      <div className="relative z-10 flex h-full items-center justify-center text-center px-6">
+      <div className="relative z-10 flex h-full items-center justify-center px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
