@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-background text-foreground relative">
         {/* 1. EL FONDO DEL VIAJE (Capa inferior fija) */}
-        <BackgroundJourney />
+        {/* <BackgroundJourney /> */}
 
         {/* 2. LA MÚSICA (Invisible) */}
         <AmbientMusic src={getMediaUrl("video", MEDIA.home.audio.ambiental)} />
