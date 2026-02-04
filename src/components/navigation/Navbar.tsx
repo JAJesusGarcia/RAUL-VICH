@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
+import { ThemeToggle } from "@/src/components/theme-toggle"
+
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -58,19 +60,22 @@ export function Navbar() {
 
         {/* DESKTOP */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Button size="sm" asChild>
-            <Link href="/contact">Contact</Link>
-          </Button>
-        </div>
+  {navLinks.map((link) => (
+    <Link
+      key={link.href}
+      href={link.href}
+      className="text-sm font-medium hover:text-primary transition-colors"
+    >
+      {link.label}
+    </Link>
+  ))}
+
+  <ThemeToggle />
+
+  <Button size="sm" asChild>
+    <Link href="/contact">Contact</Link>
+  </Button>
+</div>
 
         {/* MOBILE TOGGLE */}
         <button
@@ -86,24 +91,34 @@ export function Navbar() {
       {/* MOBILE MENU */}
       {open && (
         <div className="md:hidden bg-background border-t animate-in slide-in-from-top duration-200">
-          <div className="flex flex-col gap-2 px-6 py-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm font-medium"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Button className="mt-4 w-full" asChild>
-              <Link href="/contact" onClick={() => setOpen(false)}>
-                Contact
-              </Link>
-            </Button>
-          </div>
-        </div>
+  <div className="flex flex-col gap-2 px-6 py-6">
+    
+    <div className="flex items-center justify-between px-3 py-2">
+      <span className="text-sm font-medium text-muted-foreground">
+        Appearance
+      </span>
+      <ThemeToggle />
+    </div>
+
+    {navLinks.map((link) => (
+      <Link
+        key={link.href}
+        href={link.href}
+        onClick={() => setOpen(false)}
+        className="px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm font-medium"
+      >
+        {link.label}
+      </Link>
+    ))}
+
+    <Button className="mt-4 w-full" asChild>
+      <Link href="/contact" onClick={() => setOpen(false)}>
+        Contact
+      </Link>
+    </Button>
+  </div>
+</div>
+
       )}
     </header>
   )

@@ -7,6 +7,7 @@ import { PartnersCarousel } from "../components/partners/PartnersCarousel";
 import { Footer } from "../components/footer/Footer";
 import { getMediaUrl } from "../lib/media";
 import { MEDIA } from "@/src/constants/media";
+import { ThemeProvider } from "next-themes"
 // import { BackgroundJourney } from "../components/animations/BackgroundJourney";
 
 export default function RootLayout({
@@ -16,20 +17,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* Muevo el Provider aquí para que envuelva TODO */}
       <body className="antialiased bg-background text-foreground transition-colors duration-500 relative">
-        {/* Ambient music */}
-        <AmbientMusic src={getMediaUrl("video", MEDIA.home.audio.ambiental)} />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AmbientMusic src={getMediaUrl("video", MEDIA.home.audio.ambiental)} />
 
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <Navbar />
-
-          <main className="flex-grow">
-            {children}
-          </main>
-
-          <PartnersCarousel />
-          <Footer />
-        </div>
+          <div className="relative z-10 flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <PartnersCarousel />
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -6,50 +6,18 @@ import { MapPin, Bus, ArrowRight, Compass } from "lucide-react"
 import { cn } from "@/src/lib/utils"
 import { Button } from "@/src/components/ui/button"
 
-// --- DATOS Y CONSTANTES ---
-// Extraemos los paths para limpiar el componente
 const MAP_PATHS = {
   silhouette: "M150 20 C180 30, 200 50, 210 80 C220 110, 230 140, 220 170 C210 200, 200 230, 190 260 C180 290, 170 320, 160 350 C155 370, 150 385, 145 390 C140 385, 135 370, 130 350 C120 320, 110 290, 100 260 C90 230, 80 200, 70 170 C60 140, 70 110, 80 80 C90 50, 110 30, 150 20Z",
   route: "M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340"
 }
 
 const RAW_DESTINATIONS = [
-  { 
-    name: "Buenos Aires", 
-    mapCoords: { x: 180, y: 60 },
-    description: "La capital vibrante, donde el tango y la cultura convergen.",
-    highlight: "Capital cultural"
-  },
-  { 
-    name: "Córdoba", 
-    mapCoords: { x: 155, y: 105 },
-    description: "Puerta a las sierras, herencia jesuita y vida universitaria.",
-    highlight: "Corazón serrano"
-  },
-  { 
-    name: "Mendoza", 
-    mapCoords: { x: 130, y: 150 },
-    description: "Tierra del sol y del buen vino, con el Aconcagua de fondo.",
-    highlight: "Capital del vino"
-  },
-  { 
-    name: "Salta", 
-    mapCoords: { x: 110, y: 195 },
-    description: "La linda. Arquitectura colonial y paisajes norteños coloridos.",
-    highlight: "Salta la linda"
-  },
-  { 
-    name: "Bariloche", 
-    mapCoords: { x: 110, y: 240 },
-    description: "Lagos cristalinos, chocolate artesanal y bosques patagónicos.",
-    highlight: "Patagonia argentina"
-  },
-  { 
-    name: "Ushuaia", 
-    mapCoords: { x: 145, y: 340 },
-    description: "El fin del mundo, donde comienza tu próxima gran aventura.",
-    highlight: "Fin del mundo"
-  },
+  { name: "Buenos Aires", mapCoords: { x: 180, y: 60 }, description: "La capital vibrante, donde el tango y la cultura convergen.", highlight: "Capital cultural" },
+  { name: "Córdoba", mapCoords: { x: 155, y: 105 }, description: "Puerta a las sierras, herencia jesuita y vida universitaria.", highlight: "Corazón serrano" },
+  { name: "Mendoza", mapCoords: { x: 130, y: 150 }, description: "Tierra del sol y del buen vino, con el Aconcagua de fondo.", highlight: "Capital del vino" },
+  { name: "Salta", mapCoords: { x: 110, y: 195 }, description: "La linda. Arquitectura colonial y paisajes norteños coloridos.", highlight: "Salta la linda" },
+  { name: "Bariloche", mapCoords: { x: 110, y: 240 }, description: "Lagos cristalinos, chocolate artesanal y bosques patagónicos.", highlight: "Patagonia argentina" },
+  { name: "Ushuaia", mapCoords: { x: 145, y: 340 }, description: "El fin del mundo, donde comienza tu próxima gran aventura.", highlight: "Fin del mundo" },
 ]
 
 export function BusJourney() {
@@ -58,11 +26,9 @@ export function BusJourney() {
   const [isPaused, setIsPaused] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
-  // Calculamos posiciones dinámicamente para no depender de números mágicos
   const destinations = useMemo(() => {
     return RAW_DESTINATIONS.map((dest, i) => ({
       ...dest,
-      // Distribuye los puntos entre 0 y 0.95 (dejamos un margen al final)
       position: (i / (RAW_DESTINATIONS.length - 1)) * 0.95 
     }))
   }, [])
@@ -72,27 +38,14 @@ export function BusJourney() {
     offset: ["start start", "end end"],
   })
 
-  // Spring más suave para evitar saltos bruscos
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 70,
-    damping: 20,
-    mass: 0.5,
-    restDelta: 0.001
-  })
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 70, damping: 20 })
 
-  // Lógica optimizada para detectar el paso activo
   useMotionValueEvent(smoothProgress, "change", (latest) => {
     if (isPaused) return
-    
-    // Encontramos el paso más cercano sin iteraciones complejas
-    // Simplemente buscamos el índice donde el progreso actual supera la posición definida
     const stepIndex = destinations.reduce((lastIndex, dest, index) => {
       return latest >= dest.position - 0.05 ? index : lastIndex
     }, 0)
-
-    if (stepIndex !== activeStep) {
-      setActiveStep(stepIndex)
-    }
+    if (stepIndex !== activeStep) setActiveStep(stepIndex)
   })
 
   const busPosition = useTransform(smoothProgress, [0, 1], [0, 100])
@@ -100,27 +53,25 @@ export function BusJourney() {
   return (
     <section 
       ref={containerRef} 
-      className="relative bg-zinc-950 text-zinc-100 py-20 overflow-clip"
+      className="relative bg-background text-foreground transition-colors duration-500 py-20 overflow-clip"
     >
-      {/* Background optimizado: CSS en lugar de divs complejos si es posible */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-zinc-950/80 to-zinc-950 pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] pointer-events-none" />
-
+      {/* BACKGROUND DECORATIVO - ADAPTADO */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
+      
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         
-        {/* Header */}
+        {/* HEADER */}
         <div className="text-center mb-16 md:mb-24 space-y-4">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium"
           >
             <Compass className="w-4 h-4" />
-            <span>Ruta Argentina</span>
+            <span>Explora Argentina</span>
           </motion.div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white">
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight">
             Tu Ruta Comienza Aquí
           </h2>
         </div>
@@ -131,54 +82,47 @@ export function BusJourney() {
           <div className="relative hidden lg:block h-full">
             <div className="sticky top-24 h-[calc(100vh-8rem)] min-h-[600px] flex flex-col">
               
-              {/* Card del Mapa */}
-              <div className="relative flex-1 bg-zinc-900/40 backdrop-blur-xl rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
+              <div className="relative flex-1 bg-card/50 backdrop-blur-xl rounded-3xl border border-border shadow-2xl overflow-hidden flex flex-col">
                 
-                {/* Header del Mapa */}
-                <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/50">
+                {/* Status Bar */}
+                <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/30">
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                     </span>
-                    <span className="text-xs font-medium text-zinc-300 uppercase tracking-wider">
+                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                       {destinations[activeStep].name}
                     </span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsPaused(!isPaused)}
-                    className="h-6 text-[10px] px-2 text-zinc-500 hover:text-zinc-300"
-                  >
-                    {isPaused ? "REANUDAR" : "PAUSAR"}
-                  </Button>
                 </div>
 
-                {/* SVG Container */}
+                {/* SVG MAP - TOTALMENTE ADAPTADO */}
                 <div className="flex-1 w-full relative flex items-center justify-center p-8">
-                  <svg 
-                    viewBox="0 0 300 400" 
-                    className="w-full h-full max-h-[500px] drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-                  >
+                  <svg viewBox="0 0 300 400" className="w-full h-full max-h-[500px]">
                     <defs>
                       <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#818cf8" />
+                        <stop offset="0%" stopColor="hsl(var(--primary))" />
                         <stop offset="100%" stopColor="#ec4899" />
                       </linearGradient>
+                      {/* El degradado de la silueta cambia según el modo claro/oscuro */}
                       <linearGradient id="mapGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#27272a" />
-                        <stop offset="100%" stopColor="#18181b" />
+                        <stop offset="0%" className="stop-color-muted/40 dark:stop-color-zinc-800" />
+                        <stop offset="100%" className="stop-color-muted/20 dark:stop-color-zinc-900" />
                       </linearGradient>
                     </defs>
 
-                    {/* Silueta */}
-                    <path d={MAP_PATHS.silhouette} fill="url(#mapGradient)" stroke="#3f3f46" strokeWidth="1" />
+                    {/* Silueta del mapa */}
+                    <path 
+                      d={MAP_PATHS.silhouette} 
+                      className="fill-muted/20 dark:fill-zinc-900/50 stroke-border transition-colors duration-500" 
+                      strokeWidth="1.5" 
+                    />
 
                     {/* Ruta Base */}
-                    <path d={MAP_PATHS.route} className="stroke-zinc-800" strokeWidth="3" strokeDasharray="4 6" fill="none" />
+                    <path d={MAP_PATHS.route} className="stroke-muted dark:stroke-zinc-800" strokeWidth="2" strokeDasharray="4 6" fill="none" />
 
-                    {/* Ruta Activa (Animada) */}
+                    {/* Ruta Activa */}
                     <motion.path
                       d={MAP_PATHS.route}
                       stroke="url(#pathGradient)"
@@ -193,23 +137,20 @@ export function BusJourney() {
                        const isActive = index === activeStep
                        return (
                         <g key={city.name}>
-                          {/* Punto exterior animado */}
                           <motion.circle
                             cx={city.mapCoords.x}
                             cy={city.mapCoords.y}
                             r={isActive ? 6 : 3}
-                            className={isActive ? "fill-white" : "fill-zinc-600"}
+                            className={cn("transition-colors duration-300", isActive ? "fill-primary" : "fill-muted-foreground")}
                             animate={{ scale: isActive ? 1.2 : 1 }}
-                            transition={{ duration: 0.5 }}
                           />
                           
-                          {/* Olas de radar solo si está activo */}
-                          {isActive && !prefersReducedMotion && (
+                          {isActive && (
                             <motion.circle
                               cx={city.mapCoords.x}
                               cy={city.mapCoords.y}
                               r="8"
-                              className="stroke-indigo-500 fill-none opacity-50"
+                              className="stroke-primary fill-none"
                               initial={{ scale: 0.5, opacity: 1 }}
                               animate={{ scale: 2.5, opacity: 0 }}
                               transition={{ duration: 1.5, repeat: Infinity }}
@@ -220,8 +161,8 @@ export function BusJourney() {
                             x={city.mapCoords.x + (index % 2 === 0 ? 12 : -12)}
                             y={city.mapCoords.y + 3}
                             className={cn(
-                              "text-[9px] font-bold uppercase transition-colors duration-300",
-                              isActive ? "fill-white" : "fill-zinc-600"
+                              "text-[10px] font-bold uppercase transition-colors duration-500",
+                              isActive ? "fill-foreground" : "fill-muted-foreground/60"
                             )}
                             textAnchor={index % 2 === 0 ? "start" : "end"}
                           >
@@ -231,7 +172,7 @@ export function BusJourney() {
                       )
                     })}
 
-                    {/* Bus Animado */}
+                    {/* Bus Animado - Fondo blanco en dark, negro en light para contraste */}
                     <motion.foreignObject
                        width="40" height="40" x="-20" y="-20"
                        style={{
@@ -240,8 +181,8 @@ export function BusJourney() {
                        }}
                     >
                       <div className="flex items-center justify-center w-full h-full">
-                        <div className="relative p-1.5 bg-white rounded-lg shadow-lg rotate-[-5deg]">
-                           <Bus className="w-4 h-4 text-indigo-600" />
+                        <div className="p-1.5 bg-foreground text-background rounded-lg shadow-xl ring-2 ring-background">
+                           <Bus className="w-4 h-4" />
                         </div>
                       </div>
                     </motion.foreignObject>
@@ -253,67 +194,47 @@ export function BusJourney() {
 
           {/* ==================== LISTA DE TARJETAS ==================== */}
           <div className="relative space-y-32 pb-40">
-            {/* Línea de tiempo móvil */}
-            <div className="absolute left-4 lg:left-0 top-4 bottom-0 w-px bg-zinc-800 lg:hidden" />
-
             {destinations.map((destination, index) => {
               const isActive = index === activeStep
-              
               return (
                 <motion.div
                   key={destination.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ margin: "-20% 0px -20% 0px" }}
-                  transition={{ duration: 0.5 }}
                   className={cn(
-                    "relative pl-12 lg:pl-0 transition-opacity duration-500",
-                    isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
+                    "relative pl-12 lg:pl-0 transition-all duration-500",
+                    isActive ? "opacity-100 scale-100" : "opacity-30 scale-95"
                   )}
                 >
-                  {/* Marcador móvil */}
                   <div className={cn(
-                    "absolute left-[13px] lg:hidden top-6 w-2 h-2 rounded-full ring-4 ring-zinc-950 transition-colors duration-300",
-                    isActive ? "bg-indigo-500" : "bg-zinc-700"
-                  )} />
-
-                  <div className={cn(
-                    "group p-6 rounded-3xl border transition-all duration-300 backdrop-blur-sm",
+                    "group p-8 rounded-[2.5rem] border transition-all duration-500",
                     isActive 
-                      ? "bg-gradient-to-b from-white/10 to-transparent border-white/10 shadow-2xl" 
+                      ? "bg-card border-border shadow-2xl" 
                       : "bg-transparent border-transparent"
                   )}>
-                    <div className="flex items-baseline gap-4 mb-3">
-                      <span className="text-sm font-mono text-zinc-500">0{index + 1}</span>
-                      <h3 className="text-3xl font-bold text-white">
+                    <div className="flex items-baseline gap-4 mb-4">
+                      <span className="text-sm font-mono text-primary font-bold">0{index + 1}</span>
+                      <h3 className="text-4xl font-bold">
                         {destination.name}
                       </h3>
                     </div>
 
-                    <div className="inline-block px-3 py-1 mb-4 text-xs font-medium text-indigo-300 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-                      {destination.highlight}
-                    </div>
-                    
-                    <p className="text-zinc-400 text-lg leading-relaxed mb-6 max-w-lg">
+                    <p className="text-muted-foreground text-xl leading-relaxed mb-8 max-w-lg">
                       {destination.description}
                     </p>
 
                     <Button 
+                      size="lg"
                       className={cn(
-                        "group/btn rounded-full bg-white text-black hover:bg-indigo-50 transition-all",
-                        isActive ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                        "rounded-full transition-all duration-500",
+                        isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                       )}
                     >
-                      Explorar destino
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                      Explorar Destino
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
                 </motion.div>
               )
             })}
-            
-            {/* Espaciador final para permitir scroll completo */}
-            <div className="h-[20vh]" />
           </div>
         </div>
       </div>

@@ -1,3 +1,124 @@
+"use client"
+
+import Link from "next/link"
+import Image from "next/image"
+import { motion } from "framer-motion"
+import { ArrowUpRight, Mountain, Trees } from "lucide-react"
+import { Card, CardContent } from "@/src/components/ui/card"
+import { MEDIA } from "@/src/constants/media"
+import { getMediaUrl } from "@/src/lib/media"
+import { cn } from "@/src/lib/utils"
+
+type DestinationKey = "north" | "south"
+
+const destinations = [
+  {
+    key: "north",
+    title: "Norte Argentino",
+    subtitle: "Tierra de colores y ancestros",
+    description: "Montañas de siete colores, desiertos de sal y una cultura viva.",
+    href: "/destinations/north",
+    icon: Mountain,
+    color: "from-orange-500/20 to-amber-500/20",
+  },
+  {
+    key: "south",
+    title: "Patagonia Sur",
+    subtitle: "El fin del mundo",
+    description: "Glaciares milenarios, lagos cristalinos y bosques infinitos.",
+    href: "/destinations/south",
+    icon: Trees,
+    color: "from-sky-500/20 to-cyan-500/20",
+  },
+]
+
+export function Destinations() {
+  return (
+    <section className="py-24 md:py-32 bg-background text-foreground transition-colors duration-500">
+      <div className="mx-auto max-w-7xl px-6">
+
+        {/* HEADER - Este sí debe cambiar de color (Negro en Light, Blanco en Dark) */}
+        <div className="text-center mb-16 space-y-4">
+          <motion.h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+            Elige tu Aventura
+          </motion.h2>
+          <motion.p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Dos extremos, un mismo país. Descubre los contrastes de Argentina.
+          </motion.p>
+        </div>
+
+        {/* GRID */}
+        <div className="grid gap-8 lg:gap-12 md:grid-cols-2">
+          {destinations.map((d, i) => (
+            <motion.div key={d.key} transition={{ delay: i * 0.2 }}>
+              <Link href={d.href} className="block h-full">
+                <Card className="group relative h-full overflow-hidden rounded-3xl border border-border bg-card transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10">
+                  <CardContent className="p-0 h-[500px] md:h-[600px] relative">
+
+                    {/* IMAGEN DE FONDO */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      <Image
+                        src={getMediaUrl("image", MEDIA.destinations[d.key as DestinationKey].cover)}
+                        alt={d.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className={cn("absolute inset-0 bg-gradient-to-br mix-blend-overlay opacity-30", d.color)} />
+                    </div>
+
+                    {/* OVERLAY OSCURO FIJO 
+                        Usamos 'from-black' en lugar de 'from-background' para que 
+                        SIEMPRE haya sombra oscura bajo el texto, incluso en modo claro.
+                    */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-90" />
+
+                    {/* CONTENIDO 
+                        Forzamos 'text-white' para que no le haga caso al ThemeToggle 
+                        dentro de esta tarjeta.
+                    */}
+                    <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end text-white">
+
+                      {/* Icono con fondo que no desaparece */}
+                      <div className="mb-auto opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30">
+                          <d.icon className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Textos - Usamos colores fijos (zinc-100, white) */}
+                      <div className="space-y-4 transition-transform group-hover:-translate-y-2">
+                        <span className="text-orange-400 dark:text-orange-300 font-bold text-sm uppercase tracking-wider">
+                          {d.subtitle}
+                        </span>
+
+                        <h3 className="text-3xl md:text-4xl font-bold text-white">
+                          {d.title}
+                        </h3>
+
+                        <p className="text-zinc-200 max-w-md text-lg opacity-90">
+                          {d.description}
+                        </p>
+                      </div>
+
+                      {/* CTA - Botón con contraste fijo */}
+                      <div className="mt-8 flex items-center gap-2 font-medium opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                        <span className="text-white">Comenzar exploración</span>
+                        <span className="rounded-full bg-white text-black p-1">
+                          <ArrowUpRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </div>
+
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 
 
