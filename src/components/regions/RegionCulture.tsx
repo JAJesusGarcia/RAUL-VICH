@@ -23,35 +23,26 @@ const items = [
 
 export function RegionCulture() {
   return (
-    <section className="py-24 px-6 bg-muted/50">
-      <motion.div
-        className="mx-auto max-w-6xl grid gap-12 md:grid-cols-3"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={{
-          hidden: {},
-          visible: {
-            transition: { staggerChildren: 0.15 },
-          },
-        }}
-      >
-        {items.map((i) => (
-          <motion.div
-            key={i.title}
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              visible: { opacity: 1, y: 0 },
-            }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="text-center"
-          >
-            <i.icon className="mx-auto h-8 w-8 text-primary" />
-            <h4 className="mt-4 font-semibold text-lg">{i.title}</h4>
-            <p className="mt-2 text-muted-foreground">{i.desc}</p>
-          </motion.div>
-        ))}
-      </motion.div>
+    <section className="py-24 px-6 bg-muted/30 dark:bg-zinc-900/20">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-8 md:grid-cols-3">
+          {items.map((i, index) => (
+            <motion.div
+              key={i.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="relative p-8 rounded-3xl bg-background border border-border hover:shadow-xl transition-all group"
+            >
+              <div className="mb-4 inline-block p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                <i.icon className="h-6 w-6" />
+              </div>
+              <h4 className="text-xl font-bold mb-2">{i.title}</h4>
+              <p className="text-muted-foreground leading-relaxed">{i.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </section>
   )
 }
