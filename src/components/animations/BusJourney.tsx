@@ -1,50 +1,51 @@
 "use client"
 
-import { useRef, useState } from "react"
-import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion"
+import { useRef, useState, useMemo } from "react"
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useReducedMotion } from "framer-motion"
 import { MapPin, Bus, ArrowRight, Compass } from "lucide-react"
 import { cn } from "@/src/lib/utils"
 import { Button } from "@/src/components/ui/button"
 
-const destinations = [
+// --- DATOS Y CONSTANTES ---
+// Extraemos los paths para limpiar el componente
+const MAP_PATHS = {
+  silhouette: "M150 20 C180 30, 200 50, 210 80 C220 110, 230 140, 220 170 C210 200, 200 230, 190 260 C180 290, 170 320, 160 350 C155 370, 150 385, 145 390 C140 385, 135 370, 130 350 C120 320, 110 290, 100 260 C90 230, 80 200, 70 170 C60 140, 70 110, 80 80 C90 50, 110 30, 150 20Z",
+  route: "M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340"
+}
+
+const RAW_DESTINATIONS = [
   { 
     name: "Buenos Aires", 
-    position: 0, 
     mapCoords: { x: 180, y: 60 },
-    description: "La capital vibrante, donde el tango y la cultura convergen en cada esquina.",
+    description: "La capital vibrante, donde el tango y la cultura convergen.",
     highlight: "Capital cultural"
   },
   { 
     name: "Córdoba", 
-    position: 0.18, 
     mapCoords: { x: 155, y: 105 },
     description: "Puerta a las sierras, herencia jesuita y vida universitaria.",
     highlight: "Corazón serrano"
   },
   { 
     name: "Mendoza", 
-    position: 0.36, 
     mapCoords: { x: 130, y: 150 },
     description: "Tierra del sol y del buen vino, con el Aconcagua de fondo.",
     highlight: "Capital del vino"
   },
   { 
     name: "Salta", 
-    position: 0.54, 
     mapCoords: { x: 110, y: 195 },
     description: "La linda. Arquitectura colonial y paisajes norteños coloridos.",
     highlight: "Salta la linda"
   },
   { 
     name: "Bariloche", 
-    position: 0.75, 
     mapCoords: { x: 110, y: 240 },
     description: "Lagos cristalinos, chocolate artesanal y bosques patagónicos.",
     highlight: "Patagonia argentina"
   },
   { 
     name: "Ushuaia", 
-    position: 1, 
     mapCoords: { x: 145, y: 340 },
     description: "El fin del mundo, donde comienza tu próxima gran aventura.",
     highlight: "Fin del mundo"
@@ -55,403 +56,728 @@ export function BusJourney() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [activeStep, setActiveStep] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+
+  // Calculamos posiciones dinámicamente para no depender de números mágicos
+  const destinations = useMemo(() => {
+    return RAW_DESTINATIONS.map((dest, i) => ({
+      ...dest,
+      // Distribuye los puntos entre 0 y 0.95 (dejamos un margen al final)
+      position: (i / (RAW_DESTINATIONS.length - 1)) * 0.95 
+    }))
+  }, [])
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   })
 
+  // Spring más suave para evitar saltos bruscos
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: 70,
+    damping: 20,
+    mass: 0.5,
     restDelta: 0.001
   })
 
+  // Lógica optimizada para detectar el paso activo
   useMotionValueEvent(smoothProgress, "change", (latest) => {
     if (isPaused) return
     
-    const currentStep = destinations.findIndex((dest, index) => {
-      const nextDest = destinations[index + 1]
-      if (!nextDest) return true
-      return latest >= dest.position && latest < nextDest.position
-    })
-    
-    if (currentStep !== -1 && currentStep !== activeStep) {
-      setActiveStep(currentStep)
+    // Encontramos el paso más cercano sin iteraciones complejas
+    // Simplemente buscamos el índice donde el progreso actual supera la posición definida
+    const stepIndex = destinations.reduce((lastIndex, dest, index) => {
+      return latest >= dest.position - 0.05 ? index : lastIndex
+    }, 0)
+
+    if (stepIndex !== activeStep) {
+      setActiveStep(stepIndex)
     }
   })
 
   const busPosition = useTransform(smoothProgress, [0, 1], [0, 100])
 
   return (
-    // ⚠️ IMPORTANTE: NO usar overflow-hidden aquí
     <section 
       ref={containerRef} 
-      className="relative bg-gradient-to-b from-background via-zinc-950/95 to-background text-zinc-100 py-20 md:py-28 lg:py-32"
+      className="relative bg-zinc-950 text-zinc-100 py-20 overflow-clip"
     >
-      {/* Fondos decorativos */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-zinc-950/95 to-zinc-950 pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] pointer-events-none" />
+      {/* Background optimizado: CSS en lugar de divs complejos si es posible */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-zinc-950/80 to-zinc-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] pointer-events-none" />
 
-      {/* ⚠️ IMPORTANTE: Container sin overflow */}
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 md:mb-24 space-y-6"
-        >
+        <div className="text-center mb-16 md:mb-24 space-y-4">
           <motion.div 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 to-pink-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium"
-            whileHover={{ scale: 1.05 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium"
           >
             <Compass className="w-4 h-4" />
-            <span>Viaje Interactivo por Argentina</span>
+            <span>Ruta Argentina</span>
           </motion.div>
           
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400">
-              Tu Ruta Comienza Aquí
-            </span>
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-white">
+            Tu Ruta Comienza Aquí
           </h2>
-          
-          <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Descubre los destinos más impresionantes de Argentina en una experiencia visual única.
-            <span className="block mt-2 text-sm text-zinc-500">
-              Haz scroll para iniciar el viaje ↓
-            </span>
-          </p>
-        </motion.div>
+        </div>
 
-        {/* ⚠️ GRID CONFIGURADO PARA STICKY */}
-        <div className="grid grid-cols-1 lg:grid-cols-[40%_1fr] lg:gap-16 xl:gap-24 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] xl:grid-cols-[480px_1fr] gap-8 lg:gap-16">
           
-          {/* ========================================
-              COLUMNA IZQUIERDA - MAPA STICKY
-              ======================================== */}
-          <div>
-            {/* Wrapper sticky - Este es el elemento que se pega */}
-            <div className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)]">
-              {/* Contenido del mapa */}
-              <div className="h-[500px] md:h-[600px] lg:h-full w-full max-w-md mx-auto lg:max-w-none">
+          {/* ==================== MAPA (Sticky) ==================== */}
+          <div className="relative hidden lg:block h-full">
+            <div className="sticky top-24 h-[calc(100vh-8rem)] min-h-[600px] flex flex-col">
+              
+              {/* Card del Mapa */}
+              <div className="relative flex-1 bg-zinc-900/40 backdrop-blur-xl rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
                 
-                {/* Indicador de progreso */}
-                <div className="relative z-20 flex items-center justify-between px-4 py-3 mb-4 bg-zinc-900/80 backdrop-blur-sm rounded-t-xl border border-zinc-800/50">
+                {/* Header del Mapa */}
+                <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-zinc-900/50">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs font-medium text-zinc-400">
-                      En ruta: {destinations[activeStep].name}
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span className="text-xs font-medium text-zinc-300 uppercase tracking-wider">
+                      {destinations[activeStep].name}
                     </span>
                   </div>
-                  <span className="text-xs text-zinc-500">
-                    {activeStep + 1}/{destinations.length}
-                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsPaused(!isPaused)}
+                    className="h-6 text-[10px] px-2 text-zinc-500 hover:text-zinc-300"
+                  >
+                    {isPaused ? "REANUDAR" : "PAUSAR"}
+                  </Button>
                 </div>
 
-                {/* Contenedor del SVG */}
-                <div className="relative w-full h-[calc(100%-4rem)] flex items-center justify-center bg-zinc-900/30 backdrop-blur-sm rounded-b-xl border border-zinc-800/50 p-6 lg:p-8">
-                  
+                {/* SVG Container */}
+                <div className="flex-1 w-full relative flex items-center justify-center p-8">
                   <svg 
                     viewBox="0 0 300 400" 
-                    className="w-full h-full"
-                    style={{ filter: "drop-shadow(0 0 40px rgba(99, 102, 241, 0.15))" }}
+                    className="w-full h-full max-h-[500px] drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]"
                   >
                     <defs>
-                      <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="5" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
-                      
                       <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stopColor="#818cf8" />
-                        <stop offset="50%" stopColor="#6366f1" />
                         <stop offset="100%" stopColor="#ec4899" />
                       </linearGradient>
-
                       <linearGradient id="mapGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stopColor="#27272a" />
                         <stop offset="100%" stopColor="#18181b" />
                       </linearGradient>
                     </defs>
 
-                    {/* Silueta Argentina */}
-                    <path
-                      d="M150 20 C180 30, 200 50, 210 80 C220 110, 230 140, 220 170 C210 200, 200 230, 190 260 C180 290, 170 320, 160 350 C155 370, 150 385, 145 390 C140 385, 135 370, 130 350 C120 320, 110 290, 100 260 C90 230, 80 200, 70 170 C60 140, 70 110, 80 80 C90 50, 110 30, 150 20Z"
-                      fill="url(#mapGradient)"
-                      stroke="#3f3f46"
-                      strokeWidth="1.5"
-                    />
+                    {/* Silueta */}
+                    <path d={MAP_PATHS.silhouette} fill="url(#mapGradient)" stroke="#3f3f46" strokeWidth="1" />
 
                     {/* Ruta Base */}
-                    <path
-                      d="M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340"
-                      className="stroke-zinc-700"
-                      strokeWidth="3"
-                      strokeDasharray="6 8"
-                      fill="none"
-                    />
+                    <path d={MAP_PATHS.route} className="stroke-zinc-800" strokeWidth="3" strokeDasharray="4 6" fill="none" />
 
-                    {/* Ruta Activa */}
+                    {/* Ruta Activa (Animada) */}
                     <motion.path
-                      d="M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340"
+                      d={MAP_PATHS.route}
                       stroke="url(#pathGradient)"
-                      strokeWidth="5"
+                      strokeWidth="4"
                       fill="none"
                       strokeLinecap="round"
                       style={{ pathLength: smoothProgress }}
-                      filter="url(#glow-strong)"
                     />
 
-                    {/* Puntos de Ciudades */}
+                    {/* Ciudades */}
                     {destinations.map((city, index) => {
                        const isActive = index === activeStep
-                       const isPast = index < activeStep
-                       
                        return (
-                        <motion.g key={city.name}>
+                        <g key={city.name}>
+                          {/* Punto exterior animado */}
                           <motion.circle
                             cx={city.mapCoords.x}
                             cy={city.mapCoords.y}
-                            r={isActive ? 8 : 4}
-                            className={cn(
-                              "transition-all duration-500",
-                              isActive 
-                                ? "fill-white stroke-indigo-400" 
-                                : isPast 
-                                  ? "fill-indigo-500 stroke-indigo-400"
-                                  : "fill-zinc-700 stroke-zinc-600"
-                            )}
-                            strokeWidth={isActive ? 3 : 2}
-                            animate={{ scale: isActive ? [1, 1.2, 1] : 1 }}
-                            transition={{ duration: 1.5, repeat: isActive ? Infinity : 0 }}
+                            r={isActive ? 6 : 3}
+                            className={isActive ? "fill-white" : "fill-zinc-600"}
+                            animate={{ scale: isActive ? 1.2 : 1 }}
+                            transition={{ duration: 0.5 }}
                           />
                           
-                          {isActive && (
-                            <>
-                              <motion.circle
-                                cx={city.mapCoords.x}
-                                cy={city.mapCoords.y}
-                                r="16"
-                                className="stroke-indigo-400/60 fill-none"
-                                strokeWidth="2"
-                                initial={{ opacity: 1, scale: 0.5 }}
-                                animate={{ opacity: 0, scale: 2 }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                              />
-                              <motion.circle
-                                cx={city.mapCoords.x}
-                                cy={city.mapCoords.y}
-                                r="12"
-                                className="fill-indigo-500/20"
-                                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.2, 0.5] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                              />
-                            </>
+                          {/* Olas de radar solo si está activo */}
+                          {isActive && !prefersReducedMotion && (
+                            <motion.circle
+                              cx={city.mapCoords.x}
+                              cy={city.mapCoords.y}
+                              r="8"
+                              className="stroke-indigo-500 fill-none opacity-50"
+                              initial={{ scale: 0.5, opacity: 1 }}
+                              animate={{ scale: 2.5, opacity: 0 }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                            />
                           )}
 
                           <text
-                            x={city.mapCoords.x + (index % 2 === 0 ? 15 : -15)}
-                            y={city.mapCoords.y + 4}
+                            x={city.mapCoords.x + (index % 2 === 0 ? 12 : -12)}
+                            y={city.mapCoords.y + 3}
                             className={cn(
-                              "text-[10px] font-semibold transition-all duration-300",
-                              isActive ? "fill-white" : "fill-zinc-500"
+                              "text-[9px] font-bold uppercase transition-colors duration-300",
+                              isActive ? "fill-white" : "fill-zinc-600"
                             )}
                             textAnchor={index % 2 === 0 ? "start" : "end"}
                           >
                             {city.name}
                           </text>
-                        </motion.g>
+                        </g>
                       )
                     })}
 
-                    {/* EL BUS */}
+                    {/* Bus Animado */}
                     <motion.foreignObject
-                       width="50" height="50" x="-25" y="-25"
+                       width="40" height="40" x="-20" y="-20"
                        style={{
-                         offsetPath: `path("M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340")`,
+                         offsetPath: `path("${MAP_PATHS.route}")`,
                          offsetDistance: useTransform(busPosition, (v) => `${v}%`),
                        }}
                     >
-                      <div className="w-full h-full flex items-center justify-center">
-                        <motion.div 
-                          className="relative"
-                          animate={{ y: [0, -3, 0], rotate: [-2, 2, -2] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-pink-500 blur-xl rounded-full opacity-60 scale-150" />
-                          <div className="relative bg-gradient-to-br from-white to-zinc-100 p-3 rounded-2xl shadow-2xl border-2 border-white/20">
-                            <Bus className="w-6 h-6 text-indigo-600" fill="currentColor" />
-                          </div>
-                          <motion.div
-                            className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full"
-                            animate={{ scale: [0, 1, 0], opacity: [0, 1, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }}
-                          />
-                        </motion.div>
+                      <div className="flex items-center justify-center w-full h-full">
+                        <div className="relative p-1.5 bg-white rounded-lg shadow-lg rotate-[-5deg]">
+                           <Bus className="w-4 h-4 text-indigo-600" />
+                        </div>
                       </div>
                     </motion.foreignObject>
                   </svg>
-                </div>
-
-                {/* Control de pausa */}
-                <div className="mt-4 text-center">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsPaused(!isPaused)}
-                    className="bg-zinc-900/80 backdrop-blur-sm border-zinc-700 hover:bg-zinc-800 text-xs"
-                  >
-                    {isPaused ? "▶ Reanudar" : "⏸ Pausar"} viaje
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ========================================
-              COLUMNA DERECHA - LISTA SCROLLEABLE
-              ======================================== */}
-          <div className="relative space-y-20 md:space-y-24 pb-20 lg:pb-[800px] min-h-[150vh]">
-            
-            {/* Líneas verticales */}
-            <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-zinc-800 via-zinc-700 to-transparent" />
-            <motion.div 
-              className="absolute left-6 top-0 w-px bg-gradient-to-b from-indigo-500 via-indigo-400 to-pink-500 origin-top"
-              style={{ height: "100%", scaleY: smoothProgress }} 
-            />
+          {/* ==================== LISTA DE TARJETAS ==================== */}
+          <div className="relative space-y-32 pb-40">
+            {/* Línea de tiempo móvil */}
+            <div className="absolute left-4 lg:left-0 top-4 bottom-0 w-px bg-zinc-800 lg:hidden" />
 
             {destinations.map((destination, index) => {
               const isActive = index === activeStep
-              const isPast = index < activeStep
-              const isFuture = index > activeStep
-
+              
               return (
                 <motion.div
                   key={destination.name}
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ margin: "-15% 0px" }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                  className={cn("relative pl-16 group", isActive && "scale-[1.02]")}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ margin: "-20% 0px -20% 0px" }}
+                  transition={{ duration: 0.5 }}
+                  className={cn(
+                    "relative pl-12 lg:pl-0 transition-opacity duration-500",
+                    isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
+                  )}
                 >
-                  {/* Número */}
-                  <motion.div 
-                    className={cn(
-                      "absolute left-2 top-1 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 transition-all duration-500 font-bold text-sm",
-                      isActive 
-                        ? "border-indigo-400 bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 scale-110" 
-                        : isPast
-                          ? "border-indigo-500/70 bg-indigo-950 text-indigo-400"
-                          : "border-zinc-700 bg-zinc-900 text-zinc-600"
-                    )}
-                    whileHover={{ scale: 1.15 }}
-                  >
-                    {isPast ? "✓" : index + 1}
-                  </motion.div>
+                  {/* Marcador móvil */}
+                  <div className={cn(
+                    "absolute left-[13px] lg:hidden top-6 w-2 h-2 rounded-full ring-4 ring-zinc-950 transition-colors duration-300",
+                    isActive ? "bg-indigo-500" : "bg-zinc-700"
+                  )} />
 
-                  {/* Tarjeta */}
-                  <motion.div 
-                    className={cn(
-                      "p-6 md:p-8 rounded-2xl border transition-all duration-500 backdrop-blur-sm",
-                      isActive 
-                        ? "bg-gradient-to-br from-zinc-900 via-zinc-900/95 to-indigo-950/30 border-indigo-500/40 shadow-2xl shadow-indigo-500/10" 
-                        : isPast
-                          ? "bg-zinc-900/50 border-zinc-800/70"
-                          : "bg-zinc-900/20 border-zinc-800/30 hover:bg-zinc-900/40 hover:border-zinc-700/50"
-                    )}
-                    whileHover={{ y: isFuture ? 0 : -4 }}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className={cn(
-                            "text-2xl md:text-3xl font-bold tracking-tight transition-colors duration-300",
-                            isActive ? "text-white" : "text-zinc-400"
-                          )}>
-                            {destination.name}
-                          </h3>
-                          {isActive && (
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0, rotate: -180 }}
-                              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                              className="flex-shrink-0"
-                            >
-                              <div className="bg-gradient-to-br from-indigo-500 to-pink-500 p-2 rounded-xl">
-                                <MapPin className="w-4 h-4 text-white" fill="white" />
-                              </div>
-                            </motion.div>
-                          )}
-                        </div>
-                        
-                        <span className={cn(
-                          "inline-block text-xs font-medium px-3 py-1 rounded-full transition-all duration-300",
-                          isActive 
-                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                            : "bg-zinc-800/50 text-zinc-500"
-                        )}>
-                          {destination.highlight}
-                        </span>
-                      </div>
+                  <div className={cn(
+                    "group p-6 rounded-3xl border transition-all duration-300 backdrop-blur-sm",
+                    isActive 
+                      ? "bg-gradient-to-b from-white/10 to-transparent border-white/10 shadow-2xl" 
+                      : "bg-transparent border-transparent"
+                  )}>
+                    <div className="flex items-baseline gap-4 mb-3">
+                      <span className="text-sm font-mono text-zinc-500">0{index + 1}</span>
+                      <h3 className="text-3xl font-bold text-white">
+                        {destination.name}
+                      </h3>
+                    </div>
+
+                    <div className="inline-block px-3 py-1 mb-4 text-xs font-medium text-indigo-300 bg-indigo-500/10 rounded-full border border-indigo-500/20">
+                      {destination.highlight}
                     </div>
                     
-                    <p className={cn(
-                      "leading-relaxed transition-colors duration-300 mb-4",
-                      isActive ? "text-zinc-300" : "text-zinc-500"
-                    )}>
+                    <p className="text-zinc-400 text-lg leading-relaxed mb-6 max-w-lg">
                       {destination.description}
                     </p>
 
-                    <motion.div 
+                    <Button 
                       className={cn(
-                        "flex items-center gap-2 text-sm font-medium transition-all overflow-hidden",
-                        isActive ? "max-h-12 opacity-100 mt-4" : "max-h-0 opacity-0"
+                        "group/btn rounded-full bg-white text-black hover:bg-indigo-50 transition-all",
+                        isActive ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
                       )}
                     >
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 group/btn"
-                      >
-                        <span>Explorar {destination.name}</span>
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                      </Button>
-                    </motion.div>
-                  </motion.div>
+                      Explorar destino
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
                 </motion.div>
               )
             })}
+            
+            {/* Espaciador final para permitir scroll completo */}
+            <div className="h-[20vh]" />
           </div>
         </div>
-
-        {/* CTA Final */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-20 md:mt-32"
-        >
-          <h3 className="text-2xl md:text-3xl font-bold mb-4">
-            ¿Listo para comenzar tu aventura?
-          </h3>
-          <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
-            Explora nuestros paquetes personalizados o contáctanos para diseñar tu viaje ideal.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500">
-              Ver Paquetes
-            </Button>
-            <Button size="lg" variant="outline" className="border-zinc-700 hover:bg-zinc-800">
-              Contactar
-            </Button>
-          </div>
-        </motion.div>
       </div>
     </section>
   )
 }
+
+/////////////////////////
+
+
+// "use client"
+
+// import { useRef, useState } from "react"
+// import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion"
+// import { MapPin, Bus, ArrowRight, Compass } from "lucide-react"
+// import { cn } from "@/src/lib/utils"
+// import { Button } from "@/src/components/ui/button"
+
+// const destinations = [
+//   { 
+//     name: "Buenos Aires", 
+//     position: 0, 
+//     mapCoords: { x: 180, y: 60 },
+//     description: "La capital vibrante, donde el tango y la cultura convergen en cada esquina.",
+//     highlight: "Capital cultural"
+//   },
+//   { 
+//     name: "Córdoba", 
+//     position: 0.18, 
+//     mapCoords: { x: 155, y: 105 },
+//     description: "Puerta a las sierras, herencia jesuita y vida universitaria.",
+//     highlight: "Corazón serrano"
+//   },
+//   { 
+//     name: "Mendoza", 
+//     position: 0.36, 
+//     mapCoords: { x: 130, y: 150 },
+//     description: "Tierra del sol y del buen vino, con el Aconcagua de fondo.",
+//     highlight: "Capital del vino"
+//   },
+//   { 
+//     name: "Salta", 
+//     position: 0.54, 
+//     mapCoords: { x: 110, y: 195 },
+//     description: "La linda. Arquitectura colonial y paisajes norteños coloridos.",
+//     highlight: "Salta la linda"
+//   },
+//   { 
+//     name: "Bariloche", 
+//     position: 0.75, 
+//     mapCoords: { x: 110, y: 240 },
+//     description: "Lagos cristalinos, chocolate artesanal y bosques patagónicos.",
+//     highlight: "Patagonia argentina"
+//   },
+//   { 
+//     name: "Ushuaia", 
+//     position: 1, 
+//     mapCoords: { x: 145, y: 340 },
+//     description: "El fin del mundo, donde comienza tu próxima gran aventura.",
+//     highlight: "Fin del mundo"
+//   },
+// ]
+
+// export function BusJourney() {
+//   const containerRef = useRef<HTMLDivElement>(null)
+//   const [activeStep, setActiveStep] = useState(0)
+//   const [isPaused, setIsPaused] = useState(false)
+
+//   const { scrollYProgress } = useScroll({
+//     target: containerRef,
+//     offset: ["start start", "end end"],
+//   })
+
+//   const smoothProgress = useSpring(scrollYProgress, {
+//     stiffness: 100,
+//     damping: 30,
+//     restDelta: 0.001
+//   })
+
+//   useMotionValueEvent(smoothProgress, "change", (latest) => {
+//     if (isPaused) return
+    
+//     const currentStep = destinations.findIndex((dest, index) => {
+//       const nextDest = destinations[index + 1]
+//       if (!nextDest) return true
+//       return latest >= dest.position && latest < nextDest.position
+//     })
+    
+//     if (currentStep !== -1 && currentStep !== activeStep) {
+//       setActiveStep(currentStep)
+//     }
+//   })
+
+//   const busPosition = useTransform(smoothProgress, [0, 1], [0, 100])
+
+//   return (
+//     // ⚠️ IMPORTANTE: NO usar overflow-hidden aquí
+//     <section 
+//       ref={containerRef} 
+//       className="relative bg-gradient-to-b from-background via-zinc-950/95 to-background text-zinc-100 py-20 md:py-28 lg:py-32"
+//     >
+//       {/* Fondos decorativos */}
+//       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-zinc-950/95 to-zinc-950 pointer-events-none" />
+//       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] pointer-events-none" />
+
+//       {/* ⚠️ IMPORTANTE: Container sin overflow */}
+//       <div className="container mx-auto px-4 max-w-7xl relative z-10">
+        
+//         {/* Header */}
+//         <motion.div
+//           initial={{ opacity: 0, y: 30 }}
+//           whileInView={{ opacity: 1, y: 0 }}
+//           viewport={{ once: true }}
+//           transition={{ duration: 0.6 }}
+//           className="text-center mb-16 md:mb-24 space-y-6"
+//         >
+//           <motion.div 
+//             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 to-pink-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium"
+//             whileHover={{ scale: 1.05 }}
+//           >
+//             <Compass className="w-4 h-4" />
+//             <span>Viaje Interactivo por Argentina</span>
+//           </motion.div>
+          
+//           <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+//             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400">
+//               Tu Ruta Comienza Aquí
+//             </span>
+//           </h2>
+          
+//           <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+//             Descubre los destinos más impresionantes de Argentina en una experiencia visual única.
+//             <span className="block mt-2 text-sm text-zinc-500">
+//               Haz scroll para iniciar el viaje ↓
+//             </span>
+//           </p>
+//         </motion.div>
+
+//         {/* ⚠️ GRID CONFIGURADO PARA STICKY */}
+//         <div className="grid grid-cols-1 lg:grid-cols-[40%_1fr] lg:gap-16 xl:gap-24 gap-12">
+          
+//           {/* ========================================
+//               COLUMNA IZQUIERDA - MAPA STICKY
+//               ======================================== */}
+//           <div>
+//             {/* Wrapper sticky - Este es el elemento que se pega */}
+//             <div className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)]">
+//               {/* Contenido del mapa */}
+//               <div className="h-[500px] md:h-[600px] lg:h-full w-full max-w-md mx-auto lg:max-w-none">
+                
+//                 {/* Indicador de progreso */}
+//                 <div className="relative z-20 flex items-center justify-between px-4 py-3 mb-4 bg-zinc-900/80 backdrop-blur-sm rounded-t-xl border border-zinc-800/50">
+//                   <div className="flex items-center gap-2">
+//                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+//                     <span className="text-xs font-medium text-zinc-400">
+//                       En ruta: {destinations[activeStep].name}
+//                     </span>
+//                   </div>
+//                   <span className="text-xs text-zinc-500">
+//                     {activeStep + 1}/{destinations.length}
+//                   </span>
+//                 </div>
+
+//                 {/* Contenedor del SVG */}
+//                 <div className="relative w-full h-[calc(100%-4rem)] flex items-center justify-center bg-zinc-900/30 backdrop-blur-sm rounded-b-xl border border-zinc-800/50 p-6 lg:p-8">
+                  
+//                   <svg 
+//                     viewBox="0 0 300 400" 
+//                     className="w-full h-full"
+//                     style={{ filter: "drop-shadow(0 0 40px rgba(99, 102, 241, 0.15))" }}
+//                   >
+//                     <defs>
+//                       <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
+//                         <feGaussianBlur stdDeviation="5" result="blur" />
+//                         <feComposite in="SourceGraphic" in2="blur" operator="over" />
+//                       </filter>
+                      
+//                       <linearGradient id="pathGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+//                         <stop offset="0%" stopColor="#818cf8" />
+//                         <stop offset="50%" stopColor="#6366f1" />
+//                         <stop offset="100%" stopColor="#ec4899" />
+//                       </linearGradient>
+
+//                       <linearGradient id="mapGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+//                         <stop offset="0%" stopColor="#27272a" />
+//                         <stop offset="100%" stopColor="#18181b" />
+//                       </linearGradient>
+//                     </defs>
+
+//                     {/* Silueta Argentina */}
+//                     <path
+//                       d="M150 20 C180 30, 200 50, 210 80 C220 110, 230 140, 220 170 C210 200, 200 230, 190 260 C180 290, 170 320, 160 350 C155 370, 150 385, 145 390 C140 385, 135 370, 130 350 C120 320, 110 290, 100 260 C90 230, 80 200, 70 170 C60 140, 70 110, 80 80 C90 50, 110 30, 150 20Z"
+//                       fill="url(#mapGradient)"
+//                       stroke="#3f3f46"
+//                       strokeWidth="1.5"
+//                     />
+
+//                     {/* Ruta Base */}
+//                     <path
+//                       d="M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340"
+//                       className="stroke-zinc-700"
+//                       strokeWidth="3"
+//                       strokeDasharray="6 8"
+//                       fill="none"
+//                     />
+
+//                     {/* Ruta Activa */}
+//                     <motion.path
+//                       d="M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340"
+//                       stroke="url(#pathGradient)"
+//                       strokeWidth="5"
+//                       fill="none"
+//                       strokeLinecap="round"
+//                       style={{ pathLength: smoothProgress }}
+//                       filter="url(#glow-strong)"
+//                     />
+
+//                     {/* Puntos de Ciudades */}
+//                     {destinations.map((city, index) => {
+//                        const isActive = index === activeStep
+//                        const isPast = index < activeStep
+                       
+//                        return (
+//                         <motion.g key={city.name}>
+//                           <motion.circle
+//                             cx={city.mapCoords.x}
+//                             cy={city.mapCoords.y}
+//                             r={isActive ? 8 : 4}
+//                             className={cn(
+//                               "transition-all duration-500",
+//                               isActive 
+//                                 ? "fill-white stroke-indigo-400" 
+//                                 : isPast 
+//                                   ? "fill-indigo-500 stroke-indigo-400"
+//                                   : "fill-zinc-700 stroke-zinc-600"
+//                             )}
+//                             strokeWidth={isActive ? 3 : 2}
+//                             animate={{ scale: isActive ? [1, 1.2, 1] : 1 }}
+//                             transition={{ duration: 1.5, repeat: isActive ? Infinity : 0 }}
+//                           />
+                          
+//                           {isActive && (
+//                             <>
+//                               <motion.circle
+//                                 cx={city.mapCoords.x}
+//                                 cy={city.mapCoords.y}
+//                                 r="16"
+//                                 className="stroke-indigo-400/60 fill-none"
+//                                 strokeWidth="2"
+//                                 initial={{ opacity: 1, scale: 0.5 }}
+//                                 animate={{ opacity: 0, scale: 2 }}
+//                                 transition={{ duration: 2, repeat: Infinity }}
+//                               />
+//                               <motion.circle
+//                                 cx={city.mapCoords.x}
+//                                 cy={city.mapCoords.y}
+//                                 r="12"
+//                                 className="fill-indigo-500/20"
+//                                 animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.2, 0.5] }}
+//                                 transition={{ duration: 2, repeat: Infinity }}
+//                               />
+//                             </>
+//                           )}
+
+//                           <text
+//                             x={city.mapCoords.x + (index % 2 === 0 ? 15 : -15)}
+//                             y={city.mapCoords.y + 4}
+//                             className={cn(
+//                               "text-[10px] font-semibold transition-all duration-300",
+//                               isActive ? "fill-white" : "fill-zinc-500"
+//                             )}
+//                             textAnchor={index % 2 === 0 ? "start" : "end"}
+//                           >
+//                             {city.name}
+//                           </text>
+//                         </motion.g>
+//                       )
+//                     })}
+
+//                     {/* EL BUS */}
+//                     <motion.foreignObject
+//                        width="50" height="50" x="-25" y="-25"
+//                        style={{
+//                          offsetPath: `path("M180 60 C170 90, 140 120, 130 150 C120 180, 100 210, 110 240 C120 270, 140 300, 145 340")`,
+//                          offsetDistance: useTransform(busPosition, (v) => `${v}%`),
+//                        }}
+//                     >
+//                       <div className="w-full h-full flex items-center justify-center">
+//                         <motion.div 
+//                           className="relative"
+//                           animate={{ y: [0, -3, 0], rotate: [-2, 2, -2] }}
+//                           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+//                         >
+//                           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-pink-500 blur-xl rounded-full opacity-60 scale-150" />
+//                           <div className="relative bg-gradient-to-br from-white to-zinc-100 p-3 rounded-2xl shadow-2xl border-2 border-white/20">
+//                             <Bus className="w-6 h-6 text-indigo-600" fill="currentColor" />
+//                           </div>
+//                           <motion.div
+//                             className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full"
+//                             animate={{ scale: [0, 1, 0], opacity: [0, 1, 0] }}
+//                             transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }}
+//                           />
+//                         </motion.div>
+//                       </div>
+//                     </motion.foreignObject>
+//                   </svg>
+//                 </div>
+
+//                 {/* Control de pausa */}
+//                 <div className="mt-4 text-center">
+//                   <Button
+//                     variant="outline"
+//                     size="sm"
+//                     onClick={() => setIsPaused(!isPaused)}
+//                     className="bg-zinc-900/80 backdrop-blur-sm border-zinc-700 hover:bg-zinc-800 text-xs"
+//                   >
+//                     {isPaused ? "▶ Reanudar" : "⏸ Pausar"} viaje
+//                   </Button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* ========================================
+//               COLUMNA DERECHA - LISTA SCROLLEABLE
+//               ======================================== */}
+//           <div className="relative space-y-20 md:space-y-24 pb-20 lg:pb-[800px] min-h-[150vh]">
+            
+//             {/* Líneas verticales */}
+//             <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-zinc-800 via-zinc-700 to-transparent" />
+//             <motion.div 
+//               className="absolute left-6 top-0 w-px bg-gradient-to-b from-indigo-500 via-indigo-400 to-pink-500 origin-top"
+//               style={{ height: "100%", scaleY: smoothProgress }} 
+//             />
+
+//             {destinations.map((destination, index) => {
+//               const isActive = index === activeStep
+//               const isPast = index < activeStep
+//               const isFuture = index > activeStep
+
+//               return (
+//                 <motion.div
+//                   key={destination.name}
+//                   initial={{ opacity: 0, x: 50 }}
+//                   whileInView={{ opacity: 1, x: 0 }}
+//                   viewport={{ margin: "-15% 0px" }}
+//                   transition={{ duration: 0.5, delay: index * 0.05 }}
+//                   className={cn("relative pl-16 group", isActive && "scale-[1.02]")}
+//                 >
+//                   {/* Número */}
+//                   <motion.div 
+//                     className={cn(
+//                       "absolute left-2 top-1 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 transition-all duration-500 font-bold text-sm",
+//                       isActive 
+//                         ? "border-indigo-400 bg-indigo-500 text-white shadow-lg shadow-indigo-500/50 scale-110" 
+//                         : isPast
+//                           ? "border-indigo-500/70 bg-indigo-950 text-indigo-400"
+//                           : "border-zinc-700 bg-zinc-900 text-zinc-600"
+//                     )}
+//                     whileHover={{ scale: 1.15 }}
+//                   >
+//                     {isPast ? "✓" : index + 1}
+//                   </motion.div>
+
+//                   {/* Tarjeta */}
+//                   <motion.div 
+//                     className={cn(
+//                       "p-6 md:p-8 rounded-2xl border transition-all duration-500 backdrop-blur-sm",
+//                       isActive 
+//                         ? "bg-gradient-to-br from-zinc-900 via-zinc-900/95 to-indigo-950/30 border-indigo-500/40 shadow-2xl shadow-indigo-500/10" 
+//                         : isPast
+//                           ? "bg-zinc-900/50 border-zinc-800/70"
+//                           : "bg-zinc-900/20 border-zinc-800/30 hover:bg-zinc-900/40 hover:border-zinc-700/50"
+//                     )}
+//                     whileHover={{ y: isFuture ? 0 : -4 }}
+//                   >
+//                     <div className="flex items-start justify-between mb-3">
+//                       <div className="flex-1">
+//                         <div className="flex items-center gap-3 mb-2">
+//                           <h3 className={cn(
+//                             "text-2xl md:text-3xl font-bold tracking-tight transition-colors duration-300",
+//                             isActive ? "text-white" : "text-zinc-400"
+//                           )}>
+//                             {destination.name}
+//                           </h3>
+//                           {isActive && (
+//                             <motion.div
+//                               initial={{ opacity: 0, scale: 0, rotate: -180 }}
+//                               animate={{ opacity: 1, scale: 1, rotate: 0 }}
+//                               className="flex-shrink-0"
+//                             >
+//                               <div className="bg-gradient-to-br from-indigo-500 to-pink-500 p-2 rounded-xl">
+//                                 <MapPin className="w-4 h-4 text-white" fill="white" />
+//                               </div>
+//                             </motion.div>
+//                           )}
+//                         </div>
+                        
+//                         <span className={cn(
+//                           "inline-block text-xs font-medium px-3 py-1 rounded-full transition-all duration-300",
+//                           isActive 
+//                             ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+//                             : "bg-zinc-800/50 text-zinc-500"
+//                         )}>
+//                           {destination.highlight}
+//                         </span>
+//                       </div>
+//                     </div>
+                    
+//                     <p className={cn(
+//                       "leading-relaxed transition-colors duration-300 mb-4",
+//                       isActive ? "text-zinc-300" : "text-zinc-500"
+//                     )}>
+//                       {destination.description}
+//                     </p>
+
+//                     <motion.div 
+//                       className={cn(
+//                         "flex items-center gap-2 text-sm font-medium transition-all overflow-hidden",
+//                         isActive ? "max-h-12 opacity-100 mt-4" : "max-h-0 opacity-0"
+//                       )}
+//                     >
+//                       <Button 
+//                         variant="ghost" 
+//                         size="sm"
+//                         className="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 group/btn"
+//                       >
+//                         <span>Explorar {destination.name}</span>
+//                         <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+//                       </Button>
+//                     </motion.div>
+//                   </motion.div>
+//                 </motion.div>
+//               )
+//             })}
+//           </div>
+//         </div>
+
+//         {/* CTA Final */}
+//         <motion.div
+//           initial={{ opacity: 0, y: 30 }}
+//           whileInView={{ opacity: 1, y: 0 }}
+//           viewport={{ once: true }}
+//           className="text-center mt-20 md:mt-32"
+//         >
+//           <h3 className="text-2xl md:text-3xl font-bold mb-4">
+//             ¿Listo para comenzar tu aventura?
+//           </h3>
+//           <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
+//             Explora nuestros paquetes personalizados o contáctanos para diseñar tu viaje ideal.
+//           </p>
+//           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//             <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500">
+//               Ver Paquetes
+//             </Button>
+//             <Button size="lg" variant="outline" className="border-zinc-700 hover:bg-zinc-800">
+//               Contactar
+//             </Button>
+//           </div>
+//         </motion.div>
+//       </div>
+//     </section>
+//   )
+// }
 
 ///////////////////////. CLAUDE //////////////////
 
