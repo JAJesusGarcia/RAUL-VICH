@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
-import { ThemeToggle } from "@/src/components/theme-toggle"
+import { ThemeToggle } from "@/src/components/ui/theme-toggle"
 
 
 export function Navbar() {
